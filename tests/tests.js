@@ -9,7 +9,7 @@ module.exports.signMessage = function(test, common) {
       commonWallet.signMessage(message, function(err, signedMessage) {
         t.ok(signedMessage !== null, "signed message is not null");
         // t.equal(signedMessage, expectedSignedMessage, "signed message should be " + expectedSignedMessage);
-        t.end()
+        t.end();
       });
     });
   });
@@ -21,7 +21,7 @@ module.exports.signTransaction = function(test, common) {
       commonWallet.signRawTransaction(transactionHex, function(err, signedHex) {
         t.ok(signedHex !== null, "signed hex is not null");
         //t.equal(signedHex, expectedSignedHex, "signed hex should be " + expectedSignedHex);
-        t.end()
+        t.end();
       });
     });
   });
@@ -36,14 +36,25 @@ module.exports.createTransaction = function(test, common) {
         propagate: true
       }, function(err, signedTransactionHex) {
         t.ok(signedTransactionHex !== null, "Signed transaction hex is non-null");
-        t.end()
+        t.end();
       });
     });
   });
 }
 
+module.exports.additionalInfo = function(test, common) {
+  test('common wallet instance has an address and a network field', function(t) {
+    common.setup(test, function (err, commonWallet) {
+      t.ok(commonWallet.address !== null, "address is not null");
+      t.ok(commonWallet.network === "testnet" || commonWallet.network === "mainnet", "network is either testnet or mainnet");
+      t.end();
+    });
+  });
+}
+
 module.exports.all = function (test, common) {
-  module.exports.signMessage(test, common)
-  module.exports.signTransaction(test, common)
-  module.exports.createTransaction(test, common)
+  module.exports.signMessage(test, common);
+  module.exports.signTransaction(test, common);
+  module.exports.createTransaction(test, common);
+  module.exports.additionalInfo(test, common);
 }
