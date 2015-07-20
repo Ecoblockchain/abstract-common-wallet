@@ -36,7 +36,7 @@ var common = {
 To run the tests simply pass your test module (`tap` or `tape` or any other compatible modules are supported) and your `common` methods in:
 
 ```js
-var abstractCommonWalletTests = require('abstract-common-blockchain/tests')
+var abstractCommonWalletTests = require('abstract-common-wallet/tests')
 abstractCommonWalletTests(test, common)
 ```
 
