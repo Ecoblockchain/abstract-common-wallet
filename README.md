@@ -19,8 +19,7 @@ var testCommonWallet= require('../'); //or require('test-common-wallet')
 var commonWallet = testCommonWallet({
   network: "testnet",
   commonBlockchain: commonBlockchain,
-  address: randAddress,
-  wif: randWIF
+  seed: (some seed for your wallet's private key.)
 });
 
 var common = {
