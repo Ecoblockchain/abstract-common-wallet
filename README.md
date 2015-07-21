@@ -33,11 +33,11 @@ var common = {
 }
 ```
 
-To run the tests simply pass your test module (`tap` or `tape` or any other compatible modules are supported) and your `common` methods in:
+To run the tests simply pass your test module (`tap` or `tape` or any other compatible modules are supported), the seed you used to generate your commonWallet Object, and your `common` methods in:
 
 ```js
 var abstractCommonWalletTests = require('abstract-common-wallet/tests')
-abstractCommonWalletTests(test, common)
+abstractCommonWalletTests(test, seed, common)
 ```
 
 

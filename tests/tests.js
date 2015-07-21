@@ -1,33 +1,63 @@
+var bitcoin = require('bitcoinjs-lib');
+
+// generates a private key from a seed and a network. This function returns
+// the same private key as the deprecated bitcoinjs-lib wallet object. This may be subject
+// to change in the future.
+function WIFKeyFromSeed(seed, network) {
+  network = (network === "testnet") ? bitcoin.networks.testnet : null;
+  var hash = bitcoin.crypto.sha256(seed);
+  var hdnode = bitcoin.HDNode.fromSeedBuffer(hash, network);
+  var temp = hdnode.deriveHardened(0).derive(0);
+  var key = new bitcoin.ECKey(temp.derive(0).privKey.d);
+  var wif = key.toWIF(network);
+  return wif;
+}
+
 var message = "common wallet is great!";
 var transactionHex = "01000000017b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de\
 0398a14f3f0000000000ffffffff01f0ca052a010000001976a914cbc20a7664\
 f2f69e5355aa427045bc15e7c6c77288ac00000000";
 
-module.exports.signMessage = function(test, common) {
+module.exports.signMessage = function(test, seed, common) {
   test('signing a message with a private key', function(t) {
     common.setup(test, function(err, commonWallet) {
       commonWallet.signMessage(message, function(err, signedMessage) {
+        var wif = WIFKeyFromSeed(seed, commonWallet.network);
+        var ECKey = bitcoin.ECKey.fromWIF(wif);
+        var network = (commonWallet.network === "testnet") ? bitcoin.networks.testnet : null;
+        var expectedMessage = bitcoin.Message.sign(ECKey, message, network).toString('base64');
         t.ok(signedMessage !== null, "signed message is not null");
-        // t.equal(signedMessage, expectedSignedMessage, "signed message should be " + expectedSignedMessage);
+        t.equal(signedMessage, expectedMessage, "signed message should be " + expectedMessage);
         t.end();
       });
     });
   });
 }
 
-module.exports.signTransaction = function(test, common) {
+module.exports.signTransaction = function(test, seed, common) {
   test('signing a transaction with a wif', function(t) {
     common.setup(test, function(err, commonWallet) {
-      commonWallet.signRawTransaction(transactionHex, function(err, signedHex) {
+      commonWallet.signRawTransaction(transactionHex, function(err, signedHex, txid) {
+        var wif = WIFKeyFromSeed(seed, commonWallet.network);
+        var ECKey = bitcoin.ECKey.fromWIF(wif);
+        var network = (commonWallet.network === "testnet") ? bitcoin.networks.testnet : null;
+        
+        var transaction = bitcoin.Transaction.fromHex(transactionHex);
+        transaction.sign(0, ECKey);
+        var txid = transaction.getId();
+        var expectedSignedHex = transaction.toHex();
+        var expectedTxid = transaction.getId();
+
         t.ok(signedHex !== null, "signed hex is not null");
-        //t.equal(signedHex, expectedSignedHex, "signed hex should be " + expectedSignedHex);
+        t.equal(signedHex, expectedSignedHex, "signed hex should be " + expectedSignedHex);
+        t.equal(txid, expectedTxid, "txid of signed hex should be " + expectedTxid);
         t.end();
       });
     });
   });
 }
 
-module.exports.createTransaction = function(test, common) {
+module.exports.createTransaction = function(test, seed, common) {
   test('create a transaction using wallet credentials', function(t) {
     common.setup(test, function(err, commonWallet) {
       commonWallet.createTransaction({
@@ -42,7 +72,7 @@ module.exports.createTransaction = function(test, common) {
   });
 }
 
-module.exports.additionalInfo = function(test, common) {
+module.exports.additionalInfo = function(test, seed, common) {
   test('common wallet instance has an address and a network field', function(t) {
     common.setup(test, function (err, commonWallet) {
       t.ok(commonWallet.address !== null, "address is not null");
@@ -52,9 +82,9 @@ module.exports.additionalInfo = function(test, common) {
   });
 }
 
-module.exports.all = function (test, common) {
-  module.exports.signMessage(test, common);
-  module.exports.signTransaction(test, common);
-  module.exports.createTransaction(test, common);
-  module.exports.additionalInfo(test, common);
+module.exports.all = function (test, seed, common) {
+  module.exports.signMessage(test, seed, common);
+  module.exports.signTransaction(test, seed, common);
+  module.exports.createTransaction(test, seed, common);
+  module.exports.additionalInfo(test, seed, common);
 }

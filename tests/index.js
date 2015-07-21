@@ -7,7 +7,7 @@ var commonFaucet = require('common-faucet')({
   commonBlockchain: commonBlockchain
 });
 
-function initalize (test, common) {
+function initalize (test, seed, common) {
   var address;
   common.setup(test, function (err, resp) {
     address = resp;
@@ -22,7 +22,7 @@ function initalize (test, common) {
       console.log("error getting a bit of coin from the faucet: " + err);
     }
     else {
-      return(require('./tests.js').all(test, common));
+      return(require('./tests.js').all(test, seed, common));
     }
   });
 }
