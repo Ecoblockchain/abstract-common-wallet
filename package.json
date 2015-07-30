@@ -1,6 +1,6 @@
 {
   "name": "abstract-common-wallet",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A test suite and interface you can use to ensure standard Bitcoin wallet functionality.",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/andrewmalta13/abstract-common-wallet",
   "dependencies": {
+    "bitcoin-tx-hex-to-json": "0.0.2",
     "bitcoinjs-lib": "^1.5.7",
     "blockcypher-unofficial": "^1.4.1",
     "common-faucet": "^1.0.3"

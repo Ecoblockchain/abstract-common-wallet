@@ -1,5 +1,5 @@
 var bitcoin = require('bitcoinjs-lib');
-
+var hexParser = require('bitcoin-tx-hex-to-json');
 // generates a private key from a seed and a network. This function returns
 // the same private key as the deprecated bitcoinjs-lib wallet object. This may be subject
 // to change in the future.
@@ -17,6 +17,7 @@ var message = "common wallet is great!";
 var transactionHex = "01000000017b1eabe0209b1fe794124575ef807057c77ada2138ae4fa8d6c4de\
 0398a14f3f0000000000ffffffff01f0ca052a010000001976a914cbc20a7664\
 f2f69e5355aa427045bc15e7c6c77288ac00000000";
+var walletAddress;
 
 module.exports.signMessage = function(test, seed, common) {
   test('signing a message with a private key', function(t) {
@@ -24,6 +25,9 @@ module.exports.signMessage = function(test, seed, common) {
       commonWallet.signMessage(message, function(err, signedMessage) {
         var wif = WIFKeyFromSeed(seed, commonWallet.network);
         var ECKey = bitcoin.ECKey.fromWIF(wif);
+        
+        walletAddress = ECKey.pub.getAddress((commonWallet.network === "testnet") ? bitcoin.networks.testnet : null).toString();
+
         var network = (commonWallet.network === "testnet") ? bitcoin.networks.testnet : null;
         var expectedMessage = bitcoin.Message.sign(ECKey, message, network).toString('base64');
         t.ok(signedMessage !== null, "signed message is not null");
@@ -66,6 +70,10 @@ module.exports.createTransaction = function(test, seed, common) {
         propagate: true
       }, function(err, signedTransactionHex) {
         t.ok(signedTransactionHex !== null, "Signed transaction hex is non-null");
+        var json = hexParser(signedTransactionHex);
+        t.ok(json.vout[0].value === 90000, "transaction sends 90000 satoshi");
+        t.ok(json.vout[0].scriptPubKey.addresses[0] === "mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS", "first output is mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS");
+        t.ok(json.vin[0].addresses[0] === walletAddress, "transaction is sent from the wallet address");
         t.end();
       });
     });
