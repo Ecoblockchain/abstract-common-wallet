@@ -61,7 +61,7 @@ module.exports.createTransaction = function(test, seed, common) {
   test('create a transaction using wallet credentials', function(t) {
     common.setup(test, function(err, commonWallet) {
       commonWallet.createTransaction({
-        valueInBTC: .0009,
+        value: 90000,
         destinationAddress: "mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS",
         propagate: true
       }, function(err, signedTransactionHex) {
