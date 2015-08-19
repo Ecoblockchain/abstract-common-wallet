@@ -15,13 +15,24 @@ An example of this can be found in the [test-common-wallet](https://github.com/a
 You have to implement a setup and teardown function after declaring your common wallet object:
 
 ```js
-var testCommonWallet= require('../'); //or require('test-common-wallet')
+
+// test-common-wallet is a simple to use wallet for intended for use in tests
+var testCommonWallet = require('test-common-wallet');
+
+// our wallet benefits from being able to interface with the blockchain
+var commonBlockchain = require('blockcypher-unofficial')({
+  network: "testnet",
+  inBrowser: true
+});
+
+// we seed our wallet with the same text to generate the same bitcoin wallet address
 var commonWallet = testCommonWallet({
   network: "testnet",
   commonBlockchain: commonBlockchain,
-  seed: (some seed for your wallet's private key.)
+  seed: "someTextSeed"
 });
 
+// and then we check to see if our wallet passes all of the tests and adheres to the protocol
 var common = {
   setup: function(t, cb) {
     cb(null, commonWallet);
