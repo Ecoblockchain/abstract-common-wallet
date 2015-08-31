@@ -1,6 +1,6 @@
 {
   "name": "abstract-common-wallet",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "A test suite and interface you can use to ensure standard Bitcoin wallet functionality.",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/andrewmalta13/abstract-common-wallet"
+    "url": "https://github.com/blockai/abstract-common-wallet"
   },
   "keywords": [
     "standard",
@@ -22,9 +22,9 @@
   "author": "Andrew Malta <andrew.malta@yale.edu>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/andrewmalta13/abstract-common-wallet/issues"
+    "url": "https://github.com/blockai/abstract-common-wallet/issues"
   },
-  "homepage": "https://github.com/andrewmalta13/abstract-common-wallet",
+  "homepage": "https://github.com/blockai/abstract-common-wallet",
   "dependencies": {
     "bitcoin-tx-hex-to-json": "0.0.2",
     "bitcoinjs-lib": "^1.5.7",
