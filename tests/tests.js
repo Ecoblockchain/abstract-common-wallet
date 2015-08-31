@@ -1,5 +1,29 @@
 var bitcoin = require('bitcoinjs-lib');
 var hexParser = require('bitcoin-tx-hex-to-json');
+var request = require('request');
+var express = require('express');
+var expressCommonWallet = require('express-common-wallet');
+
+var app = express();
+
+var __nonces = {};
+var commonWalletNonceStore = {
+  get: function(address, callback) {
+    callback(false, __nonces[address]);
+  },
+  set: function(address, nonce, callback) {
+    __nonces[address] = nonce;
+    callback(false, true);
+  }
+}
+
+app.use("/", expressCommonWallet({
+  commonWalletNonceStore: commonWalletNonceStore
+}));
+
+var port = 3564;
+var serverRootUrl = "http://localhost:" + port;
+
 // generates a private key from a seed and a network. This function returns
 // the same private key as the deprecated bitcoinjs-lib wallet object. This may be subject
 // to change in the future.
@@ -90,9 +114,45 @@ module.exports.additionalInfo = function(test, seed, common) {
   });
 }
 
+module.exports.login = function(test, seed, common) {
+  test('common wallet instance can login', function(t) {
+    common.setup(test, function (err, commonWallet) {
+      var server = app.listen(port, function() {
+        commonWallet.login(serverRootUrl, function(err, res, body) {
+          var nonce = res.headers['x-common-wallet-nonce'];
+          t.ok(nonce, "has nonce");
+          server.close();
+          t.end();
+        });
+      });
+    });
+  });
+}
+
+module.exports.request = function(test, seed, common) {
+  test('common wallet instance can request', function(t) {
+    common.setup(test, function (err, commonWallet) {
+      var server = app.listen(port, function() {
+        commonWallet.login(serverRootUrl, function(err, res, body) {
+          var nonce = res.headers['x-common-wallet-nonce'];
+          t.ok(nonce, "has nonce");
+          commonWallet.request({host: serverRootUrl, path: "/nonce" }, function(err, res, body) {
+            var verifiedAddress = res.headers['x-common-wallet-verified-address'];
+            t.equal(commonWallet.address, verifiedAddress, "verified address");
+            server.close();
+            t.end();
+          });
+        });
+      });
+    });
+  });
+}
+
 module.exports.all = function (test, seed, common) {
   module.exports.signMessage(test, seed, common);
   module.exports.signTransaction(test, seed, common);
   module.exports.createTransaction(test, seed, common);
   module.exports.additionalInfo(test, seed, common);
+  module.exports.login(test, seed, common);
+  module.exports.request(test, seed, common);
 }
