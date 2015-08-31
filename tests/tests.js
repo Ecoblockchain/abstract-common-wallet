@@ -3,6 +3,7 @@ var hexParser = require('bitcoin-tx-hex-to-json');
 var request = require('request');
 var express = require('express');
 var expressCommonWallet = require('express-common-wallet');
+var bodyParser = require('body-parser');
 
 var app = express();
 
@@ -17,9 +18,16 @@ var commonWalletNonceStore = {
   }
 }
 
+app.use(bodyParser());
+
 app.use("/", expressCommonWallet({
   commonWalletNonceStore: commonWalletNonceStore
 }));
+
+app.post("/test-post", function(req, res) {
+  var value = req.body.key;
+  res.send(value);
+});
 
 var port = 3564;
 var serverRootUrl = "http://localhost:" + port;
@@ -129,8 +137,8 @@ module.exports.login = function(test, seed, common) {
   });
 }
 
-module.exports.request = function(test, seed, common) {
-  test('common wallet instance can request', function(t) {
+module.exports.requestGet = function(test, seed, common) {
+  test('common wallet instance can get request', function(t) {
     common.setup(test, function (err, commonWallet) {
       var server = app.listen(port, function() {
         commonWallet.login(serverRootUrl, function(err, res, body) {
@@ -148,11 +156,29 @@ module.exports.request = function(test, seed, common) {
   });
 }
 
+module.exports.requestPost = function(test, seed, common) {
+  test('common wallet instance can post request', function(t) {
+    common.setup(test, function (err, commonWallet) {
+      var server = app.listen(port, function() {
+        commonWallet.login(serverRootUrl, function(err, res, body) {
+          var value = "test123";
+          commonWallet.request({host: serverRootUrl, path: "/test-post", method:"POST", form: {key: value } }, function(err, res, body) {
+            t.equal(value, body, "value was returned");
+            server.close();
+            t.end();
+          });
+        });
+      });
+    });
+  });
+}
+
 module.exports.all = function (test, seed, common) {
   module.exports.signMessage(test, seed, common);
   module.exports.signTransaction(test, seed, common);
   module.exports.createTransaction(test, seed, common);
   module.exports.additionalInfo(test, seed, common);
   module.exports.login(test, seed, common);
-  module.exports.request(test, seed, common);
+  module.exports.requestGet(test, seed, common);
+  module.exports.requestPost(test, seed, common);
 }
