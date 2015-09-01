@@ -67,6 +67,12 @@ cw.createTransaction({
   destinationAddress: (the address your Common Wallet object will be sending btc to),
   propagate: (true or false if you want to propagate the tx. Will default to false)
 }, callback);
+
+//will login in to a compatible back-end server
+cw.login(host, callback);
+
+//will send authenticated requests to compatible back-end server
+cq.request(options, callback);
 ```
 
 ## Other Common Wallet Data
