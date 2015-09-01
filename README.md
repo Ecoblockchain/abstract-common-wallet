@@ -68,7 +68,7 @@ cw.createTransaction({
   propagate: (true or false if you want to propagate the tx. Will default to false)
 }, callback);
 
-//will login in to a compatible back-end server
+//will login to a compatible back-end server using wallet address as an identifier
 cw.login(host, callback);
 
 //will send authenticated requests to compatible back-end server
