@@ -24,11 +24,6 @@ app.use("/", expressCommonWallet({
   commonWalletNonceStore: commonWalletNonceStore
 }));
 
-app.post("/test-post", function(req, res) {
-  var value = req.body.key;
-  res.send(value);
-});
-
 var port = 3564;
 var serverRootUrl = "http://localhost:" + port;
 
@@ -139,16 +134,26 @@ module.exports.login = function(test, seed, common) {
 
 module.exports.requestGet = function(test, seed, common) {
   test('common wallet instance can get request', function(t) {
+    t.plan(5);
+    var nonce;
+    var testPath = "/test/requestGet";
     common.setup(test, function (err, commonWallet) {
+      app.get(testPath, function(req, res) {
+        t.equal(req.headers["x-common-wallet-address"], commonWallet.address, "has x-common-wallet-address header");
+        t.equal(req.headers["x-common-wallet-network"], "testnet", "has x-common-wallet-address header");
+        commonWallet.signMessage(nonce, function(err, signedNonce) {
+          t.equal(req.headers["x-common-wallet-signed-nonce"], signedNonce, "has x-common-wallet-signed-nonce header")
+          res.send("ok");
+        });
+      });
       var server = app.listen(port, function() {
         commonWallet.login(serverRootUrl, function(err, res, body) {
-          var nonce = res.headers['x-common-wallet-nonce'];
+          nonce = res.headers['x-common-wallet-nonce'];
           t.ok(nonce, "has nonce");
-          commonWallet.request({host: serverRootUrl, path: "/nonce" }, function(err, res, body) {
+          commonWallet.request({host: serverRootUrl, path: testPath }, function(err, res, body) {
             var verifiedAddress = res.headers['x-common-wallet-verified-address'];
-            t.equal(commonWallet.address, verifiedAddress, "verified address");
+            t.equal(verifiedAddress, commonWallet.address, "verified address");
             server.close();
-            t.end();
           });
         });
       });
@@ -158,11 +163,16 @@ module.exports.requestGet = function(test, seed, common) {
 
 module.exports.requestPost = function(test, seed, common) {
   test('common wallet instance can post request', function(t) {
+    var testPath = "/test-post";
     common.setup(test, function (err, commonWallet) {
+      app.post(testPath, function(req, res) {
+        var value = req.body.key;
+        res.send(value);
+      });
       var server = app.listen(port, function() {
         commonWallet.login(serverRootUrl, function(err, res, body) {
           var value = "test123";
-          commonWallet.request({host: serverRootUrl, path: "/test-post", method:"POST", form: {key: value } }, function(err, res, body) {
+          commonWallet.request({host: serverRootUrl, path: testPath, method:"POST", form: {key: value } }, function(err, res, body) {
             t.equal(value, body, "value was returned");
             server.close();
             t.end();
