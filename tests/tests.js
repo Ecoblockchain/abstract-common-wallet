@@ -121,6 +121,28 @@ module.exports.createTransaction = function(test, seed, common) {
       }, function(err, signedTransactionHex) {
         t.ok(signedTransactionHex !== null, "Signed transaction hex is non-null");
         var json = hexParser(signedTransactionHex);
+        t.ok(json.vin[0].scriptSig.hex.length > 10, 'the input was signed');
+        t.ok(json.vout[0].value === 90000, "transaction sends 90000 satoshi");
+        t.ok(json.vout[0].scriptPubKey.addresses[0] === "mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS", "first output is mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS");
+        t.ok(json.vin[0].addresses[0] === walletAddress, "transaction is sent from the wallet address");
+        t.end();
+      });
+    });
+  });
+}
+
+module.exports.createTransactionSkipSign = function(test, seed, common) {
+  test('create a transaction using wallet credentials', function(t) {
+    common.setup(test, function(err, commonWallet) {
+      commonWallet.createTransaction({
+        value: 90000,
+        destinationAddress: "mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS",
+        propagate: false,
+        skipSign: true
+      }, function(err, transactionHex) {
+        t.ok(transactionHex !== null, "Signed transaction hex is non-null");
+        var json = hexParser(transactionHex);
+        t.ok(json.vin[0].scriptSig.hex === '', 'the input was not signed');
         t.ok(json.vout[0].value === 90000, "transaction sends 90000 satoshi");
         t.ok(json.vout[0].scriptPubKey.addresses[0] === "mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS", "first output is mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS");
         t.ok(json.vin[0].addresses[0] === walletAddress, "transaction is sent from the wallet address");
@@ -209,7 +231,9 @@ module.exports.requestPost = function(test, seed, common) {
 module.exports.all = function (test, seed, common) {
   module.exports.signMessage(test, seed, common);
   module.exports.signTransaction(test, seed, common);
+  module.exports.signTransactionInput(test, seed, common);
   module.exports.createTransaction(test, seed, common);
+  module.exports.createTransactionSkipSign(test, seed, common);
   module.exports.additionalInfo(test, seed, common);
   module.exports.login(test, seed, common);
   module.exports.requestGet(test, seed, common);
