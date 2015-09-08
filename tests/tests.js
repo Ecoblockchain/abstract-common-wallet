@@ -88,6 +88,29 @@ module.exports.signTransaction = function(test, seed, common) {
   });
 }
 
+module.exports.signTransactionInput = function(test, seed, common) {
+  test('signing a transaction with a wif', function(t) {
+    common.setup(test, function(err, commonWallet) {
+      commonWallet.signRawTransaction({txHex: transactionHex, index:0}, function(err, signedHex, txid) {
+        var wif = WIFKeyFromSeed(seed, commonWallet.network);
+        var ECKey = bitcoin.ECKey.fromWIF(wif);
+        var network = (commonWallet.network === "testnet") ? bitcoin.networks.testnet : null;
+        
+        var transaction = bitcoin.Transaction.fromHex(transactionHex);
+        transaction.sign(0, ECKey);
+        var txid = transaction.getId();
+        var expectedSignedHex = transaction.toHex();
+        var expectedTxid = transaction.getId();
+
+        t.ok(signedHex !== null, "signed hex is not null");
+        t.equal(signedHex, expectedSignedHex, "signed hex should be " + expectedSignedHex);
+        t.equal(txid, expectedTxid, "txid of signed hex should be " + expectedTxid);
+        t.end();
+      });
+    });
+  });
+}
+
 module.exports.createTransaction = function(test, seed, common) {
   test('create a transaction using wallet credentials', function(t) {
     common.setup(test, function(err, commonWallet) {
