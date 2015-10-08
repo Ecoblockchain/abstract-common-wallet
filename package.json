@@ -1,6 +1,6 @@
 {
   "name": "abstract-common-wallet",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "A test suite and interface you can use to ensure standard Bitcoin wallet functionality.",
   "main": "index.js",
   "scripts": {
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/blockai/abstract-common-wallet",
   "dependencies": {
-    "bitcoin-tx-hex-to-json": "0.0.3",
+    "bitcoin-tx-hex-to-json": "^1.0.0",
     "bitcoinjs-lib": "^1.5.7",
     "blockcypher-unofficial": "^1.4.1",
     "body-parser": "^1.13.3",
