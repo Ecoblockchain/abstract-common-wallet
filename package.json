@@ -1,6 +1,6 @@
 {
   "name": "abstract-common-wallet",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A test suite and interface you can use to ensure standard Bitcoin wallet functionality.",
   "main": "index.js",
   "scripts": {

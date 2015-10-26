@@ -137,7 +137,7 @@ module.exports.createTransaction = function (test, seed, common) {
 }
 
 module.exports.createTransactionSkipSign = function (test, seed, common) {
-  test('create a transaction using wallet credentials', function (t) {
+  test('create a transaction using wallet credentials, skipSign', function (t) {
     common.setup(test, function (err, commonWallet) {
       if (err) { } // TODO
       commonWallet.createTransaction({
@@ -152,7 +152,6 @@ module.exports.createTransactionSkipSign = function (test, seed, common) {
         t.ok(json.vin[0].scriptSig.hex === '', 'the input was not signed')
         t.ok(json.vout[0].value === 90000, 'transaction sends 90000 satoshi')
         t.ok(json.vout[0].scriptPubKey.addresses[0] === 'mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS', 'first output is mghg74ZBppLfhEUmzxK4Cwt1FCqiEtYbXS')
-        t.ok(json.vin[0].addresses[0] === walletAddress, 'transaction is sent from the wallet address')
         t.end()
       })
     })
